@@ -28,8 +28,8 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
-        const userCollection = client.db("brandShopUsersDB").collection("user");
-        const brandCollection = client.db("brandShopCarsDB").collection("brand");
+        const brandCollection = client.db('brandShopDB').collection('brand');
+        const userCollection = client.db('brandShopDB').collection('user');
 
         app.post('/brand', async (req, res) => {
             const brand = req.body;
@@ -80,5 +80,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`Brand Shop Server is running on port: ${port}`)
+    console.log(`Server is running on PORT: ${port}`)
 })
