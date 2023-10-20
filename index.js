@@ -29,6 +29,14 @@ async function run() {
         await client.connect();
 
         const userCollection = client.db("brandShopUsersDB").collection("user");
+        const brandCollection = client.db("brandShopCarsDB").collection("brand");
+
+        app.post('/brand', async (req, res) => {
+            const brand = req.body;
+            console.log(brand);
+            const result = await brandCollection.insertOne(brand);
+            res.send(result);
+        })
 
         app.post('/user', async (req, res) => {
             const user = req.body;
@@ -54,7 +62,6 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc)
             res.send(result);
         })
-
 
 
         // Send a ping to confirm a successful connection
