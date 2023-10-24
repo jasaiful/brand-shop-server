@@ -1,15 +1,15 @@
-const express = require('express');
-const cors = require('cors');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const app = express();
+const express = require('express');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
+
+const app = express();
+const cors = require('cors');
 
 // middleware
 app.use(cors());
 app.use(express.json());
 
-console.log(process.env.DB_USER)
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.imeoc20.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -26,22 +26,53 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const brandCollection = client.db('brandShopDB').collection('brand');
         const userCollection = client.db('brandShopDB').collection('user');
 
-        app.post('/brand', async (req, res) => {
+        app.post('/brands', async (req, res) => {
             const brand = req.body;
             console.log(brand);
             const result = await brandCollection.insertOne(brand);
             res.send(result);
         })
 
+        app.get('/brands', async (req, res) => {
+            const cursor = brandCollection.find();
+            const brand = await cursor.toArray();
+            res.send(brand);
+        })
+
+
+        app.get('/brands/:brandName/products', async (req, res) => {
+            const brandName = req.params.brandName;
+            try {
+                const products = await brandCollection.find({ brand: brandName }).toArray();
+
+                if (products.length === 0) {
+                    res.status(404).send('No products available for this brand');
+                } else {
+                    res.json(products);
+                }
+            } catch (error) {
+                console.error('Error fetching products by brand:', error);
+                res.status(500).send('Error fetching products by brand');
+            }
+        });
+
+
         app.post('/user', async (req, res) => {
             const user = req.body;
             console.log(user);
             const result = await userCollection.insertOne(user);
+            res.send(result);
+        })
+
+        app.post('/googleUser', async (req, res) => {
+            const googleUser = req.body;
+            console.log(googleUser);
+            const result = await userCollection.insertOne(googleUser);
             res.send(result);
         })
 
@@ -52,8 +83,8 @@ async function run() {
         })
 
         app.patch('/user', async (req, res) => {
-            const user= req.body;
-            const filter = {email: user.email}
+            const user = req.body;
+            const filter = { email: user.email }
             const updateDoc = {
                 $set: {
                     lastLoggedAt: user.lastLoggedAt
