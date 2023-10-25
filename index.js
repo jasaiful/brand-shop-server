@@ -45,6 +45,13 @@ async function run() {
         })
 
 
+        app.get('brands/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)}
+            const result = await brandCollection.findOne(query);
+            res.send(result);
+        })
+
         app.get('/brands/:brandName/products', async (req, res) => {
             const brandName = req.params.brandName;
             try {
@@ -60,7 +67,6 @@ async function run() {
                 res.status(500).send('Error fetching products by brand');
             }
         });
-
 
         app.post('/user', async (req, res) => {
             const user = req.body;
